@@ -8,7 +8,7 @@ begin
     gem.summary = %Q{Load boostrapped database records into constants}
     gem.description = %Q{has_named_bootstraps is a simple way to load bootstrapped records into class-level constants, and generate a list in another constant of all such bootstraps.  This is handy for generating <select>s and writing certain kinds of tests.}
     gem.email = "philip.darnowsky@childrens.harvard.edu"
-    gem.homepage = "http://github.com/phildarnowsky/has_named_bootstraps"
+    gem.homepage = "http://github.com/chb/has_named_bootstraps"
     gem.authors = ["Phil Darnowsky"]
     gem.add_development_dependency "shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
