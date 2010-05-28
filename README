@@ -32,6 +32,7 @@ Getting the bootstrapped data in beforehand is up to you.  I like seed_fu (http:
 
   -make master constant list optional
   -allow caller to specify an attribute to use to find record (currently hardcoded to "name")
+  -write tests for shoulda macros, document same
 
 = License and copyright
 
