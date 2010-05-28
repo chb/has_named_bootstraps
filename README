@@ -1,0 +1,42 @@
+HasNamedBootstraps
+==================
+
+**This is alpha code.  The API is subject (and almost certain) to change.  It shouldn't hurt your computer or data, but if it does, I am not obligated to do anything, even feel sorry for you.**
+
+has_named_bootstraps is a simple way to load bootstrapped records into class-level constants, and generate a list in another constant of all such bootstraps.  This is handy for generating <select>s and writing certain kinds of tests.
+
+Getting the bootstrapped data in beforehand is up to you.  I like [seed_fu](http://github.com/mbleigh/seed-fu) for this.
+
+Example
+=======
+
+    class Department < ActiveRecord::Base
+      has_named_bootstraps(
+        :VALID_DEPARTMENTS,    # name of the constant that'll hold the list of all bootstrap constants
+        :R_AND_D         => 'R&D',
+        :MARKETING       => 'Marketing', 
+        :HANDSOME_DEVILS => 'Web Development' 
+      )
+    end
+
+    >> Department.find(:all)
+    => [#<Department id: 1, name: "R&D">, #<Department id: 2, name: "Marketing">, #<Department id: 3, name: "Web Development">]
+    >> Department::R_AND_D
+    => #<Department id: 1, name: "R&D">
+    >> Department::MARKETING
+    => #<Department id: 2, name: "Marketing">
+    >> Department::HANDSOME_DEVILS
+    => #<Department id: 3, name: "Web Development">
+    >> Department::VALID_DEPARTMENTS
+    => [#<Department id: 1, name: "R&D">, #<Department id: 2, name: "Marketing">, #<Department id: 3, name: "Web Development">]
+
+TODO
+====
+
+--make master constant list optional
+--allow caller to specify an attribute to use to find record (currently hardcoded to "name")
+
+License and copyright
+=====================
+
+Copyright (c) 2010 Children's Hospital Boston, released under the GNU Lesser General Public License.

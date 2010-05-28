@@ -1,0 +1,3 @@
+*.swp
+has_named_bootstraps_test.db
+rdoc
