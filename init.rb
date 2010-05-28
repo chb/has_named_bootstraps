@@ -1,1 +1,1 @@
-ActiveRecord::Base.send(:include, HasNamedBootstraps)
+require File.dirname(__FILE__) + "/rails/init"

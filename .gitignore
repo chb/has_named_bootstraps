@@ -1,3 +1,5 @@
 *.swp
 has_named_bootstraps_test.db
 rdoc
+has_named_bootstraps.gemspec
+pkg
