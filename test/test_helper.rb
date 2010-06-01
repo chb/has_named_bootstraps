@@ -4,7 +4,10 @@ require 'active_support/test_case'
 require 'active_record'
 require 'active_record/fixtures'
 require 'shoulda'
-require 'ruby-debug'
+begin
+  require 'ruby-debug'
+rescue LoadError
+end
 
 require 'lib/has_named_bootstraps'
 
