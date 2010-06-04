@@ -33,7 +33,8 @@ class HasNamedBootstrapsTest < ActiveSupport::TestCase
     should "create each expected constant" do
       CONSTANT_HASH.each do |constant_name, department_name|
         bootstrapped_constant = Department.const_get(constant_name)
-        assert_equal department_name, bootstrapped_constant.name
+        expected_department = Department.find_by_name(department_name)
+        assert_equal expected_department, bootstrapped_constant
       end
     end
 

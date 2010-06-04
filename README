@@ -37,3 +37,7 @@ Getting the bootstrapped data in beforehand is up to you.  I like seed_fu (http:
 = License and copyright
 
 Copyright (c) 2010 Children's Hospital Boston, released under the GNU Lesser General Public License.
+
+= Acknowledgements
+
+Thanks to Dan Croak for patches.
