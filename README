@@ -1,16 +1,15 @@
 = HasNamedBootstraps
 
-*This is alpha code.  The API is subject (and almost certain) to change.  It shouldn't hurt your computer or data, but if it does, I am not obligated to do anything, even feel sorry for you.*
+This is alpha code.  The API is subject (and almost certain) to change.  It shouldn't hurt your computer or data, but if it does, I am not obligated to do anything, even feel sorry for you.
 
-has_named_bootstraps is a simple way to load bootstrapped records into class-level constants, and generate a list in another constant of all such bootstraps.  This is handy for generating <select>s and writing certain kinds of tests.
+has_named_bootstraps is a simple way to load bootstrapped records into class-level constants, making application-level data integrity easier.  You can also generate a list in another constant of all such bootstraps, which is handy for generating <select>s and writing certain kinds of tests.
 
-Getting the bootstrapped data in beforehand is up to you.  I like seed_fu (http://github.com/mbleigh/seed-fu) for this.
+Getting the bootstrapped data in beforehand is up to you, and has_named_bootstraps will not raise an error if you have not done so, but rather will happily set your constant to nil.  I like seed_fu (http://github.com/mbleigh/seed-fu) for this.
 
 = Example
 
     class Department < ActiveRecord::Base
       has_named_bootstraps(
-        :VALID_DEPARTMENTS,    # name of the constant that'll hold the list of all bootstrap constants
         :R_AND_D         => 'R&D',
         :MARKETING       => 'Marketing', 
         :HANDSOME_DEVILS => 'Web Development' 
@@ -25,14 +24,28 @@ Getting the bootstrapped data in beforehand is up to you.  I like seed_fu (http:
     => #<Department id: 2, name: "Marketing">
     >> Department::HANDSOME_DEVILS
     => #<Department id: 3, name: "Web Development">
-    >> Department::VALID_DEPARTMENTS
-    => [#<Department id: 1, name: "R&D">, #<Department id: 2, name: "Marketing">, #<Department id: 3, name: "Web Development">]
+
+With a master list:
+
+    class Dog < ActiveRecord::Base
+      has_named_bootstraps(
+        {:FIDO => 'Fido', :ROVER => 'Rover', :SPOT  => 'Spot'},
+        :master_list => :GOOD_DOGS
+      )
+    end
+
+    >> Dog.find(:all)
+    => [#<Dog id: 1, name: "Spot">, #<Dog id: 2, name: "Fido">, #<Dog id: 3, name: "Rover">]
+    >> Dog::GOOD_DOGS
+    => [#<Dog id: 1, name: "Spot">, #<Dog id: 2, name: "Fido">, #<Dog id: 3, name: "Rover">]
 
 = TODO
 
-  -make master constant list optional
-  -allow caller to specify an attribute to use to find record (currently hardcoded to "name")
-  -write tests for shoulda macros, document same
+allow caller to specify an attribute to use to find record (currently hardcoded to "name")
+
+add option to have has_named_bootstraps raise an error if an expected bootstrap value is not found
+
+write tests for shoulda macros, document same
 
 = License and copyright
 
@@ -40,4 +53,4 @@ Copyright (c) 2010 Children's Hospital Boston, released under the GNU Lesser Gen
 
 = Acknowledgements
 
-Thanks to Dan Croak for patches.
+Thanks to Wyatt Greene for feedback, Dan Croak for patches and Harold Gimenez for Markdown advice.

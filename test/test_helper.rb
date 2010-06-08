@@ -20,7 +20,14 @@ ActiveRecord::Schema.define do
   create_table 'departments', :force => true do |t|
     t.column 'name', :string
   end
+
+  create_table 'dogs', :force => true do |t|
+    t.column 'name', :string
+  end
 end
 
 class Department < ActiveRecord::Base
+end
+
+class Dog < ActiveRecord::Base
 end
