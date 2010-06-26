@@ -30,15 +30,38 @@ module HasNamedBootstraps
     #   end
     #
     # Dog::FIDO, Dog::ROVER, and Dog::SPOT are now defined as above, but there's also another constant, Dog::GOOD_DOGS, which contains a list of those three dogs.
+    #
+    #
+    #
+    # +name_field+:: Look up bootstrapped constants by the specified field, rather than +name+.  Example:
+    #
+    #   class Part < ActiveRecord::Base
+    #     has_named_bootstraps(
+    #       {
+    #         :BANANA_GRABBER => '423-GOB-127', 
+    #         :TURNIP_TWADDLER => 'ZOMG-6-5000', 
+    #         :MOLE_WHACKER => '520-23-17X'
+    #       },
+    #       :name_field => :serial_number
+    #     )
+    #   end
+    #
+    #   >> Part.all
+    #   => [#<Part id: 1, serial_number: "423-GOB-127">, #<Part id: 2, serial_number: "ZOMG-6-5000">, #<Part id: 3, serial_number: "520-23-17X">]
+    #   >> Part::BANANA_GRABBER
+    #   => #<Part id: 1, serial_number: "423-GOB-127">
 
     def has_named_bootstraps(constant_hash, options={})
+      name_field = options[:name_field] || :name
+
       # If the master_list option isn't set, we're just going to throw this
       # list away, but it's clearer to just check once at the end if it's set
       # rather than check repeatedly.
       master_list = []
 
       constant_hash.each do |constant_name, record_name|
-        master_list << self.const_set(constant_name, self.find_by_name(record_name).freeze)
+        bootstrapped_record = self.find(:first, :conditions => {name_field => record_name})
+        master_list << self.const_set(constant_name, bootstrapped_record.freeze)
       end
 
       master_list_name = options[:master_list]

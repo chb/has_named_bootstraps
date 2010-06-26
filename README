@@ -39,13 +39,19 @@ With a master list:
     >> Dog::GOOD_DOGS
     => [#<Dog id: 1, name: "Spot">, #<Dog id: 2, name: "Fido">, #<Dog id: 3, name: "Rover">]
 
-= TODO
+See HasNamedBootstraps::ClassMethods for other options.
 
-allow caller to specify an attribute to use to find record (currently hardcoded to "name")
+= TODO
 
 add option to have has_named_bootstraps raise an error if an expected bootstrap value is not found
 
 write tests for shoulda macros, document same
+
+make should_have_named_bootstraps detect multiple missing bootstraps (not just the first)
+
+Rails 3 compatibility
+
+Markdown README for GitHub
 
 = License and copyright
 
@@ -53,4 +59,4 @@ Copyright (c) 2010 Children's Hospital Boston, released under the GNU Lesser Gen
 
 = Acknowledgements
 
-Thanks to Wyatt Greene for feedback, Dan Croak for patches and Harold Gimenez for Markdown advice.
+Thanks to Wyatt Greene for feedback, Dan Croak for patches and Harold Gimenez for Markdown advice.  Boston.rb can beat up your Ruby group.

@@ -13,37 +13,53 @@ class HasNamedBootstrapsTest < ActiveSupport::TestCase
     :SPOT  => 'Spot'
   }
 
-  def self.create_records_from_hash_values(klass, hash)
+  PART_CONSTANT_HASH = {
+    :BANANA_GRABBER  => '423-GOB-127',
+    :TURNIP_TWADDLER => 'ZOMG-6-5000',
+    :MOLE_WHACKER    => '520-23-17X'
+  }
+
+  def self.quietly
+    old_verbose = $VERBOSE
+    $VERBOSE = nil
+    yield
+    $VERBOSE = old_verbose
+  end
+
+  def self.create_records_from_hash_values(klass, hash, name_field_sym = :name)
     klass.delete_all
     hash.values.each do |record_name|
-      klass.create!(:name => record_name)
+      klass.create!(name_field_sym => record_name)
     end
   end
 
   setup do
     create_records_from_hash_values(Department, DEPARTMENT_CONSTANT_HASH)
     create_records_from_hash_values(Dog, DOG_CONSTANT_HASH)
+    create_records_from_hash_values(Part, PART_CONSTANT_HASH, :serial_number)
 
-    # Ignore "already initialized constant WHATEVER" warnings that we
-    # would otherwise get due to load_named_bootstraps running before every
-    # test, redefining constants as we go (which we want in this case)
-    old_verbose = $VERBOSE
-    $VERBOSE = nil
+    quietly do
+      Department.class_eval do
+        include HasNamedBootstraps
+        has_named_bootstraps(DEPARTMENT_CONSTANT_HASH)
+      end
 
-    Department.class_eval do
-      include HasNamedBootstraps
-      has_named_bootstraps(DEPARTMENT_CONSTANT_HASH)
+      Dog.class_eval do
+        include HasNamedBootstraps
+        has_named_bootstraps(
+          DOG_CONSTANT_HASH,
+          :master_list => :GOOD_DOGS # who's a good dog?
+        )
+      end
+
+      Part.class_eval do
+        include HasNamedBootstraps
+        has_named_bootstraps(
+          PART_CONSTANT_HASH,
+          :name_field => :serial_number
+        )
+      end
     end
-
-    Dog.class_eval do
-      include HasNamedBootstraps
-      has_named_bootstraps(
-        DOG_CONSTANT_HASH,
-        :master_list => :GOOD_DOGS # who's a good dog?
-      )
-    end
-
-    $VERBOSE = old_verbose
   end
 
   context "#has_named_bootstraps" do
@@ -64,6 +80,17 @@ class HasNamedBootstrapsTest < ActiveSupport::TestCase
 
         expected_objects.each {|expected_object| assert expected_object} # ensure not nil
         assert_same_elements expected_objects, actual_objects
+      end
+    end
+
+    context "when the :name_field option is set" do
+      should "look up bootstrapped constants by that field" do
+        PART_CONSTANT_HASH.each do |constant_name, serial_number|
+          expected_constant = Part.find_by_serial_number(serial_number)
+          actual_constant = Part.const_get(constant_name)
+
+          assert_equal expected_constant, actual_constant
+        end
       end
     end
   end
