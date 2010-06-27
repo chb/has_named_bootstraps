@@ -1,10 +1,12 @@
 module HasNamedBootstraps
+  class MissingBootstrapError < Exception; end
+
   def self.included(other)
     other.extend(ClassMethods)
   end
 
   module ClassMethods
-    # For each key/value pair in constant_hash, look up the record with the value in the "name" attribute, and assign it to the constant denoted by the key.
+    # For each key/value pair in constant_hash, look up the record with the value in the "name" attribute (by default), and assign it to the constant denoted by the key.
     #
     # Example:
     #
@@ -50,9 +52,23 @@ module HasNamedBootstraps
     #   => [#<Part id: 1, serial_number: "423-GOB-127">, #<Part id: 2, serial_number: "ZOMG-6-5000">, #<Part id: 3, serial_number: "520-23-17X">]
     #   >> Part::BANANA_GRABBER
     #   => #<Part id: 1, serial_number: "423-GOB-127">
+    #
+    #
+    #
+    #
+    # +handle_missing_bootstrap+:: What to do if an expected bootstrap doesn't exist.  Valid values are:
+    # 
+    # * +raise+ (default):: Raise a HasNamedBootstraps::MissingBootstrapError
+    # * +warn+:: Log a warning in the Rails log and leave the constant set to nil.
+    # * +silent+:: Leave the constant set to nil as in +warn+, but without any warning logged.
 
     def has_named_bootstraps(constant_hash, options={})
       name_field = options[:name_field] || :name
+
+      handle_missing_bootstrap_strategy = options[:handle_missing_bootstrap] || :raise
+      unless %w(raise warn silent).include?(handle_missing_bootstrap_strategy.to_s)
+        raise ArgumentError, "Invalid :handle_missing_bootstrap option \"#{handle_missing_bootstrap_strategy}\""
+      end
 
       # If the master_list option isn't set, we're just going to throw this
       # list away, but it's clearer to just check once at the end if it's set
@@ -61,12 +77,31 @@ module HasNamedBootstraps
 
       constant_hash.each do |constant_name, record_name|
         bootstrapped_record = self.find(:first, :conditions => {name_field => record_name})
+
+        unless bootstrapped_record
+          handle_missing_bootstrap(handle_missing_bootstrap_strategy, name_field, record_name)
+        end
+
         master_list << self.const_set(constant_name, bootstrapped_record.freeze)
       end
 
       master_list_name = options[:master_list]
       if master_list_name
         self.const_set(master_list_name, master_list.freeze)
+      end
+    end
+
+    def handle_missing_bootstrap(handle_missing_bootstrap_strategy, name_field, record_name) #:nodoc:
+      error_message = "Couldn't find bootstrap #{self} with #{name_field} \"#{record_name}\""
+
+      case handle_missing_bootstrap_strategy
+      when :raise
+        raise MissingBootstrapError, error_message
+      when :warn
+        Rails.logger.warn error_message
+      when :silent
+        # Don't raise anything, don't log a warning, just let the constant be 
+        # silently set to nil.
       end
     end
   end

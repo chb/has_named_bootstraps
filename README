@@ -4,7 +4,7 @@ This is alpha code.  The API is subject (and almost certain) to change.  It shou
 
 has_named_bootstraps is a simple way to load bootstrapped records into class-level constants, making application-level data integrity easier.  You can also generate a list in another constant of all such bootstraps, which is handy for generating <select>s and writing certain kinds of tests.
 
-Getting the bootstrapped data in beforehand is up to you, and has_named_bootstraps will not raise an error if you have not done so, but rather will happily set your constant to nil.  I like seed_fu (http://github.com/mbleigh/seed-fu) for this.
+Getting the bootstrapped data in beforehand is up to you.  I like seed_fu (http://github.com/mbleigh/seed-fu) for this personally.  If has_named_bootstraps can't find a bootstrap, by default it'll raise an error.  It's also possible to have it log a warning and continue, or continue silently.
 
 = Example
 
@@ -43,11 +43,9 @@ See HasNamedBootstraps::ClassMethods for other options.
 
 = TODO
 
-add option to have has_named_bootstraps raise an error if an expected bootstrap value is not found
+make should_have_named_bootstraps detect multiple missing bootstraps (not just the first)
 
 write tests for shoulda macros, document same
-
-make should_have_named_bootstraps detect multiple missing bootstraps (not just the first)
 
 Rails 3 compatibility
 

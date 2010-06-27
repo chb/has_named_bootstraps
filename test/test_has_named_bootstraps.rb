@@ -19,13 +19,6 @@ class HasNamedBootstrapsTest < ActiveSupport::TestCase
     :MOLE_WHACKER    => '520-23-17X'
   }
 
-  def self.quietly
-    old_verbose = $VERBOSE
-    $VERBOSE = nil
-    yield
-    $VERBOSE = old_verbose
-  end
-
   def self.create_records_from_hash_values(klass, hash, name_field_sym = :name)
     klass.delete_all
     hash.values.each do |record_name|
@@ -40,12 +33,10 @@ class HasNamedBootstrapsTest < ActiveSupport::TestCase
 
     quietly do
       Department.class_eval do
-        include HasNamedBootstraps
         has_named_bootstraps(DEPARTMENT_CONSTANT_HASH)
       end
 
       Dog.class_eval do
-        include HasNamedBootstraps
         has_named_bootstraps(
           DOG_CONSTANT_HASH,
           :master_list => :GOOD_DOGS # who's a good dog?
@@ -53,7 +44,6 @@ class HasNamedBootstrapsTest < ActiveSupport::TestCase
       end
 
       Part.class_eval do
-        include HasNamedBootstraps
         has_named_bootstraps(
           PART_CONSTANT_HASH,
           :name_field => :serial_number
@@ -70,6 +60,65 @@ class HasNamedBootstrapsTest < ActiveSupport::TestCase
         
         assert expected_department # ensure not nil
         assert_equal expected_department, bootstrapped_constant
+      end
+    end
+
+    context "when an expected bootstrap is missing" do
+      setup do
+        @bad_country_name = "Erewhon"
+        @bad_country_const_name = "EREWHON"
+        @bad_bootstrap_hash_string = "{'#{@bad_country_const_name}' => '#{@bad_country_name}'}"
+
+        stub(Rails.logger).warn
+        assert_nil Country.find_by_name(@bad_country_const_name)
+      end
+
+      should "raise a HasNamedBootstraps::MissingBootstrapError" do
+        assert_raise HasNamedBootstraps::MissingBootstrapError do
+          # Using stringwise form of class_eval so we can interpolate
+          # @bad_bootstrap_hash_string, which otherwise this wants to interpret 
+          # as an instance variable of Department.
+
+          quietly do
+            Country.class_eval <<-END_CLASS_EVAL
+              has_named_bootstraps(#{@bad_bootstrap_hash_string})
+            END_CLASS_EVAL
+          end
+        end
+      end
+
+      context "when :handle_missing_bootstrap is set to :warn" do
+        setup do
+          quietly do
+            Country.class_eval <<-END_CLASS_EVAL 
+              has_named_bootstraps(#{@bad_bootstrap_hash_string}, :handle_missing_bootstrap => :warn)
+            END_CLASS_EVAL
+          end
+        end
+
+        should "log a warning" do
+          assert_received(Rails.logger) {|logger| logger.warn(/#{@bad_country_name}/)}
+        end
+
+        should "leave that constant set to nil" do
+          assert_nil Country.const_get(@bad_country_const_name)
+        end
+      end
+
+      context "when :handle_missing_bootstrap is set to :silent" do
+        setup do
+          dont_allow(Rails.logger).warn
+
+          quietly do
+            Country.class_eval <<-END_CLASS_EVAL 
+              has_named_bootstraps(#{@bad_bootstrap_hash_string}, :handle_missing_bootstrap => :silent)
+            END_CLASS_EVAL
+          end
+        end
+
+        should "leave that constant set to nil" do
+          assert_nil Country.const_get(@bad_country_const_name)
+        end
       end
     end
 
