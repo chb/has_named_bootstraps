@@ -47,8 +47,6 @@ make should_have_named_bootstraps detect multiple missing bootstraps (not just t
 
 write tests for shoulda macros, document same
 
-Rails 3 compatibility
-
 Markdown README for GitHub
 
 = License and copyright

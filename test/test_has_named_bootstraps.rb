@@ -26,6 +26,14 @@ class HasNamedBootstrapsTest < ActiveSupport::TestCase
     end
   end
 
+  # Hack for Rails 3 compatibility.  Not sure why in 2.3.8 this is expected to
+  # be a class method, and in 3.0.0.beta4 this is an instance method, but
+  # there it is.
+  
+  def create_records_from_hash_values(klass, hash, name_field_sym = :name)
+    self.class.create_records_from_hash_values(klass, hash, name_field_sym)
+  end
+
   setup do
     create_records_from_hash_values(Department, DEPARTMENT_CONSTANT_HASH)
     create_records_from_hash_values(Dog, DOG_CONSTANT_HASH)
