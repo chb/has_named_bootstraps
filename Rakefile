@@ -11,6 +11,9 @@ begin
     gem.homepage = "http://github.com/chb/has_named_bootstraps"
     gem.authors = ["Phil Darnowsky"]
     gem.add_development_dependency "shoulda", ">= 0"
+    gem.add_development_dependency "rr", ">= 0"
+    gem.add_development_dependency "sqlite3-ruby", ">= 0"
+
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
